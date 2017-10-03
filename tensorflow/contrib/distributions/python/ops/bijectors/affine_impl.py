@@ -199,6 +199,11 @@ class Affine(bijector.Bijector):
                   event_ndims, 2, message="event_ndims must be 0 or 1")],
               event_ndims)
 
+      if event_ndims_const == 0 and not self._is_only_identity_multiplier:
+        raise ValueError(
+            "If event_ndims == 0, the only scale argument you can pass is "
+            "scale_identity_multiplier.  All others operate on vectors.")
+
       # In the absence of `loc` and `scale`, we'll assume `dtype` is `float32`.
       dtype = dtypes.float32
 
@@ -349,7 +354,7 @@ class Affine(bijector.Bijector):
       y *= self._scale
       if self.shift is not None:
         return y + self.shift
-      return  y
+      return y
     y, sample_shape = self._shaper.make_batch_of_event_sample_matrices(
         y, expand_batch_dim=False)
     with ops.control_dependencies(self._maybe_check_scale() if
